@@ -9,3 +9,22 @@ Reemplazar los recibos de papel por un sistema automatizado e inteligente que ge
 ##  Tecnologías Usadas en esta Fase (hasta el momento)
 - **Backend:** Python 3 con el Framework Flask
 - **
+
+┌─────────────────────────────────────────┐
+                  │                FRONTEND                 │
+                  │       (HTML5 / CSS3 / JavaScript)       │
+                  └────────────────────┬────────────────────┘
+                                       │
+                         Peticiones HTTP (fetch / JSON)
+                                       │
+                                       ▼
+                  ┌─────────────────────────────────────────┐
+                  │                BACKEND                  │
+                  │  (Python / Flask API / qrcode / Twilio) │
+                  └────────────────────┬────────────────────┘
+                                       │
+                                       ▼
+                  ┌─────────────────────────────────────────┐
+                  │             BASE DE DATOS               │
+                  │                (MySQL)                  │
+                  └─────────────────────────────────────────┘

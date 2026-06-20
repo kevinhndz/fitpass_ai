@@ -10,21 +10,7 @@ Reemplazar los recibos de papel por un sistema automatizado e inteligente que ge
 - **Backend:** Python 3 con el Framework Flask
 - **
 
-┌─────────────────────────────────────────┐
-                  │                FRONTEND                 │
-                  │       (HTML5 / CSS3 / JavaScript)       │
-                  └────────────────────┬────────────────────┘
-                                       │
-                         Peticiones HTTP (fetch / JSON)
-                                       │
-                                       ▼
-                  ┌─────────────────────────────────────────┐
-                  │                BACKEND                  │
-                  │  (Python / Flask API / qrcode / Twilio) │
-                  └────────────────────┬────────────────────┘
-                                       │
-                                       ▼
-                  ┌─────────────────────────────────────────┐
-                  │             BASE DE DATOS               │
-                  │                (MySQL)                  │
-                  └─────────────────────────────────────────┘
+## 📐 Arquitectura del Sistema
+Aquí se muestra el mapa visual de cómo interactúa nuestra interfaz con la API de Flask:
+
+![Diagrama de Arquitectura de Fitpass AI](docs/estructura.png)

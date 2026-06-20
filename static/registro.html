@@ -2,46 +2,57 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sport Fitness - Registro de Clientes</title>
-    <link rel="stylesheet" href="estilos.css">
+    <link rel="stylesheet" href="/static/estilos.css">
 </head>
 <body>
-    <header>
-        <h1>🏋️‍♂️ Sport Fitness - Panel de Recepción</h1>
-        <p>Registro de Nuevos Miembros para Acceso con QR</p>
-    </header>
-    <hr>
+    <header class="cabecera">
+    <div class="icono-insignia" aria-hidden="true">🏋️‍♂️</div>
+    <h1>Sport Fitness - Panel de Recepción</h1>
+    <p>Registro de Nuevos Miembros para Acceso con QR</p>
+</header>
 
-    <main>
-        <h2>📝 Formulario de Inscripción</h2>
-        <form id="formulario-registro">
-            <p>
-                <label>Nombre Completo del Cliente:</label><br>
-                <input type="text" id="nombre" name="nombre" placeholder="Ej. Juan Pérez" required>
-            </p>
-            
-            <p>
-                <label>Número de WhatsApp (Celular):</label><br>
-                <input type="tel" id="whatsapp" name="whatsapp" placeholder="Ej. 99998888" required>
-            </p>
+    <main class="contenido">
+        <section class="seccion-formulario" aria-labelledby="titulo-formulario">
+            <h2 id="titulo-formulario"><span aria-hidden="true">📝</span> Formulario de Inscripción</h2>
 
-            <p>
-                <label>Correo Electrónico:</label><br>
-                <input type="email" id="correo" name="correo" placeholder="juan@gmail.com" required>
-            </p>
+            <form id="formulario-registro" novalidate>
+                <div class="campo">
+                    <label for="nombre">Nombre Completo del Cliente</label>
+                    <input type="text" id="nombre" name="nombre" autocomplete="name"
+                           placeholder="Ej. Juan Pérez" required aria-required="true">
+                </div>
 
-            <p>
-                <label>Tipo de Membresía:</label><br>
-                <select id="membresia" name="membresia">
-                    <option value="mensual_estandar">Mensualidad Estándar</option>
-                    <option value="mensual_estudiante">Mensualidad Estudiante (Con Descuento)</option>
-                </select>
-            </p>
+                <div class="campo">
+                    <label for="whatsapp">Número de WhatsApp (Celular)</label>
+                    <input type="tel" id="whatsapp" name="whatsapp" autocomplete="tel" inputmode="tel"
+                           placeholder="Ej. 99998888" required aria-required="true">
+                </div>
 
-            <button type="submit">Generar Acceso QR e Inscribir</button>
-        </form>
+                <div class="campo">
+                    <label for="correo">Correo Electrónico</label>
+                    <input type="email" id="correo" name="correo" autocomplete="email"
+                           placeholder="juan@gmail.com" required aria-required="true">
+                </div>
+
+                <div class="campo">
+                    <label for="membresia">Tipo de Membresía</label>
+                    <select id="membresia" name="membresia">
+                        <option value="mensual_estandar">Mensualidad Estándar</option>
+                        <option value="mensual_estudiante">Mensualidad Estudiante (Con Descuento)</option>
+                    </select>
+                </div>
+
+                <button type="submit">Generar Acceso QR e Inscribir</button>
+            </form>
+        </section>
     </main>
 
-    <script src="app.js"></script>
+    <footer class="pie">
+        <p>© 2026 Sport Fitness — Uso interno de recepción</p>
+    </footer>
+
+    <script src="/static/app.js"></script>
 </body>
 </html>

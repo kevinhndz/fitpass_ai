@@ -1,10 +1,9 @@
-from flask import Flask # trae todas las herramientas para hacer paginas web
-
+from flask import Flask, render_template
 app = Flask(__name__) # creamos la aplicacion
 
 @app.route('/')
 def home ():
-  return "<h1>¡Bienvenidos a Sport Fitness con IA! El sistema está encendido con éxito.</h1>"
+  return render_template('registro.html')
 
 
 if __name__ == '__main__':

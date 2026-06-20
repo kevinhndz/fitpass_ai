@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Sport Fitness - Registro de Clientes</title>
+</head>
+<body>
+    <header>
+        <h1>🏋️‍♂️ Sport Fitness - Panel de Recepción</h1>
+        <p>Registro de Nuevos Miembros para Acceso con QR</p>
+    </header>
+    <hr>
+
+    <main>
+        <h2>📝 Formulario de Inscripción</h2>
+        <form>
+            <p>
+                <label>Nombre Completo del Cliente:</label><br>
+                <input type="text" name="nombre" placeholder="Ej. Juan Pérez" required>
+            </p>
+            
+            <p>
+                <label>Número de WhatsApp (Celular):</label><br>
+                <input type="tel" name="whatsapp" placeholder="Ej. 99998888" required>
+            </p>
+
+            <p>
+                <label>Correo Electrónico:</label><br>
+                <input type="email" name="correo" placeholder="juan@gmail.com" required>
+            </p>
+
+            <p>
+                <label>Tipo de Membresía:</label><br>
+                <select name="membresia">
+                    <option value="mensual">Mensualidad Estándar</option>
+                    <option value="vip">Mensualidad Estudiante</option>
+                </select>
+            </p>
+
+            <button type="submit">Generar Acceso QR e Inscribir</button>
+        </form>
+    </main>
+</body>
+</html>

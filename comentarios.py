@@ -1,8 +1,10 @@
 """
-#1 --> send_from_directory:
+#1 --> from flask import Flask, send_from_directory, request, jsonify
 
-Esta herramienta simplemente agarra un archivo físico de tu computadora y 
-se lo avienta directamente al navegador sin procesarle nada por dentro.
+# send_from_directory ->  para mandar el HTML,
+# request -> para leer lo que manda el cliente,
+# y jsonify --> para responder en formato JSON.
+\
 
 # 2  -- > app = Flask(__name__, static_folder='static')  :
 

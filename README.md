@@ -9,3 +9,8 @@ Reemplazar los recibos de papel por un sistema automatizado e inteligente que ge
 ##  Tecnologías Usadas en esta Fase (hasta el momento)
 - **Backend:** Python 3 con el Framework Flask
 - **
+
+## 📐 Arquitectura del Sistema
+Aquí se muestra el mapa visual de cómo interactúa nuestra interfaz con la API de Flask:
+
+![Diagrama de Arquitectura de Fitpass AI](docs/estructura.png)

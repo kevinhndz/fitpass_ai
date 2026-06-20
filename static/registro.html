@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Sport Fitness - Registro de Clientes</title>
+    <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
     <header>
@@ -13,32 +14,34 @@
 
     <main>
         <h2>📝 Formulario de Inscripción</h2>
-        <form>
+        <form id="formulario-registro">
             <p>
                 <label>Nombre Completo del Cliente:</label><br>
-                <input type="text" name="nombre" placeholder="Ej. Juan Pérez" required>
+                <input type="text" id="nombre" name="nombre" placeholder="Ej. Juan Pérez" required>
             </p>
             
             <p>
                 <label>Número de WhatsApp (Celular):</label><br>
-                <input type="tel" name="whatsapp" placeholder="Ej. 99998888" required>
+                <input type="tel" id="whatsapp" name="whatsapp" placeholder="Ej. 99998888" required>
             </p>
 
             <p>
                 <label>Correo Electrónico:</label><br>
-                <input type="email" name="correo" placeholder="juan@gmail.com" required>
+                <input type="email" id="correo" name="correo" placeholder="juan@gmail.com" required>
             </p>
 
             <p>
                 <label>Tipo de Membresía:</label><br>
-                <select name="membresia">
-                    <option value="mensual">Mensualidad Estándar</option>
-                    <option value="vip">Mensualidad Estudiante</option>
+                <select id="membresia" name="membresia">
+                    <option value="mensual_estandar">Mensualidad Estándar</option>
+                    <option value="mensual_estudiante">Mensualidad Estudiante (Con Descuento)</option>
                 </select>
             </p>
 
             <button type="submit">Generar Acceso QR e Inscribir</button>
         </form>
     </main>
+
+    <script src="app.js"></script>
 </body>
 </html>

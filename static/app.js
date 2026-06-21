@@ -10,7 +10,7 @@ formulario.addEventListener('submit', function(evento) {
         membresia: document.getElementById('membresia').value
     };
 
-    // CAMBIO AQUÍ: Ahora JS corre a la nueva ventanilla que inventaste
+
     fetch('/api/registrar', {
         method: 'POST',
         headers: {
@@ -20,7 +20,7 @@ formulario.addEventListener('submit', function(evento) {
     })
     .then(respuesta => respuesta.json())
     .then(data => {
-        // JS lee la clave 'mensaje_pantalla' que creamos en Python
+
         alert(data.mensaje_pantalla); 
         formulario.reset();
     })
@@ -28,3 +28,4 @@ formulario.addEventListener('submit', function(evento) {
         console.error("Error:", error);
     });
 });
+

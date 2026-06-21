@@ -30,6 +30,4 @@ def registrar_cliente():
     }
     # Traducimos y sellamos la respuesta usando jsonify antes de enviarla por internet
     return jsonify(respuesta_python), 200
-
-if __name__ == '__main__':
-    app.run(debug=True)
+  

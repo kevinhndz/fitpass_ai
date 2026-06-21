@@ -10,7 +10,6 @@ formulario.addEventListener('submit', function(evento) {
         membresia: document.getElementById('membresia').value
     };
 
-
     fetch('/api/registrar', {
         method: 'POST',
         headers: {
@@ -20,7 +19,6 @@ formulario.addEventListener('submit', function(evento) {
     })
     .then(respuesta => respuesta.json())
     .then(data => {
-
         alert(data.mensaje_pantalla); 
         formulario.reset();
     })
@@ -28,4 +26,3 @@ formulario.addEventListener('submit', function(evento) {
         console.error("Error:", error);
     });
 });
-

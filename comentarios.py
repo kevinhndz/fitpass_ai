@@ -4,7 +4,7 @@
 # send_from_directory ->  para mandar el HTML,
 # request -> para leer lo que manda el cliente,
 # y jsonify --> para responder en formato JSON.
-\
+
 
 # 2  -- > app = Flask(__name__, static_folder='static')  :
 
@@ -12,6 +12,6 @@ todas las imágenes, estilos y JS van a vivir dentro de la carpeta llamada 'stat
 
 
 
-
+yqnr vqoj ngsi rqwj
 
 """

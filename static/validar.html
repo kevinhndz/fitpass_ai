@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Validar Acceso — Sport Fitness</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --verde:  #00d68f;
+      --rojo:   #ff4d4d;
+      --amarillo: #f5a623;
+      --fondo:  #0d0d10;
+      --tarjeta: #1a1a1e;
+      --borde:  #2c2c33;
+      --texto:  #ffffff;
+      --subtexto: #a8a8b3;
+    }
+
+    body {
+      background: var(--fondo);
+      color: var(--texto);
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 20px;
+    }
+
+    .logo {
+      font-size: 36px;
+      margin-bottom: 8px;
+    }
+
+    .gym-nombre {
+      font-size: 14px;
+      color: var(--subtexto);
+      margin-bottom: 32px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* Tarjeta de resultado */
+    .tarjeta {
+      width: 100%;
+      max-width: 360px;
+      border-radius: 20px;
+      padding: 32px 24px;
+      text-align: center;
+      border: 2px solid var(--borde);
+      background: var(--tarjeta);
+      animation: aparecer 0.4s cubic-bezier(.22,1,.36,1);
+    }
+
+    @keyframes aparecer {
+      from { opacity: 0; transform: translateY(16px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .tarjeta.verde { border-color: var(--verde); box-shadow: 0 0 40px rgba(0,214,143,0.2); }
+    .tarjeta.rojo  { border-color: var(--rojo);  box-shadow: 0 0 40px rgba(255,77,77,0.2); }
+    .tarjeta.amarillo { border-color: var(--amarillo); box-shadow: 0 0 40px rgba(245,166,35,0.2); }
+
+    .icono-estado {
+      font-size: 64px;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .estado-titulo {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .verde  .estado-titulo { color: var(--verde); }
+    .rojo   .estado-titulo { color: var(--rojo); }
+    .amarillo .estado-titulo { color: var(--amarillo); }
+
+    .estado-subtitulo {
+      font-size: 15px;
+      color: var(--subtexto);
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--borde);
+      margin: 20px 0;
+    }
+
+    .dato {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      font-size: 14px;
+      border-bottom: 1px solid var(--borde);
+    }
+    .dato:last-child { border-bottom: 0; }
+
+    .dato-label { color: var(--subtexto); }
+    .dato-valor { font-weight: 700; }
+
+    /* Estado de carga */
+    .cargando {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      color: var(--subtexto);
+      font-size: 15px;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid var(--borde);
+      border-top-color: var(--verde);
+      border-radius: 50%;
+      animation: girar 0.8s linear infinite;
+    }
+
+    @keyframes girar {
+      to { transform: rotate(360deg); }
+    }
+
+    .error-msg {
+      color: var(--rojo);
+      font-size: 15px;
+      text-align: center;
+    }
+
+    .pie {
+      margin-top: 32px;
+      font-size: 11px;
+      color: #3a3a42;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="logo">🏋️‍♂️</div>
+  <p class="gym-nombre">Sport Fitness — Control de Acceso</p>
+
+  <div id="contenido">
+    <div class="cargando">
+      <div class="spinner"></div>
+      <span>Verificando membresía...</span>
+    </div>
+  </div>
+
+  <p class="pie">© 2026 Sport Fitness — Uso interno de recepción</p>
+
+<script>
+  // Extrae el ID del cliente de la URL: /validar/12 → 12
+  const partes   = window.location.pathname.split('/');
+  const clienteId = partes[partes.length - 1];
+
+  if (!clienteId || isNaN(clienteId)) {
+    mostrarError('URL inválida. Escanea el QR nuevamente.');
+  } else {
+    fetch(`/api/validar/${clienteId}`)
+      .then(r => r.json())
+      .then(renderizar)
+      .catch(() => mostrarError('No se pudo conectar con el servidor.'));
+  }
+
+  function renderizar(d) {
+    const hoy      = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const vence    = new Date(d.fecha_vencimiento + 'T00:00:00');
+    const diffMs   = vence - hoy;
+    const dias     = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+    let clase, icono, titulo, subtitulo;
+
+    if (dias > 1) {
+      // Verde: le quedan más de 1 día
+      clase     = 'verde';
+      icono     = '✅';
+      titulo    = 'PUEDE PASAR';
+      subtitulo = `Su membresía vence en <strong>${dias} día(s)</strong>.<br>Recuérdale que debe pagar antes de esa fecha.`;
+    } else if (dias === 1) {
+      // Amarillo: vence mañana
+      clase     = 'amarillo';
+      icono     = '⚠️';
+      titulo    = 'VENCE MAÑANA';
+      subtitulo = `Hoy es el último día con cobertura.<br>Invítale a pagar hoy mismo.`;
+    } else if (dias === 0) {
+      // Rojo fuerte: vence exactamente hoy
+      clase     = 'rojo';
+      icono     = '🔴';
+      titulo    = 'LE TOCA PAGAR HOY';
+      subtitulo = `Su membresía <strong>vence hoy</strong>.<br>Debe pagar antes de salir.`;
+    } else {
+      // Rojo: ya venció
+      const retraso = Math.abs(dias);
+      clase     = 'rojo';
+      icono     = '❌';
+      titulo    = 'MEMBRESÍA VENCIDA';
+      subtitulo = `Tiene <strong>${retraso} día(s) de retraso</strong>.<br>No puede acceder hasta regularizar su pago.`;
+    }
+
+    function formatearMembresia(val) {
+      const p = val.split('_');
+      return 'Mensualidad ' + p[1].charAt(0).toUpperCase() + p[1].slice(1);
+    }
+
+    function formatearFecha(str) {
+      const [y, m, dia] = str.split('-');
+      return `${dia}/${m}/${y}`;
+    }
+
+    document.getElementById('contenido').innerHTML = `
+      <div class="tarjeta ${clase}">
+        <span class="icono-estado">${icono}</span>
+        <div class="estado-titulo">${titulo}</div>
+        <div class="estado-subtitulo">${subtitulo}</div>
+        <div class="divider"></div>
+        <div class="dato">
+          <span class="dato-label">Cliente</span>
+          <span class="dato-valor">${d.nombre}</span>
+        </div>
+        <div class="dato">
+          <span class="dato-label">Membresía</span>
+          <span class="dato-valor">${formatearMembresia(d.membresia)}</span>
+        </div>
+        <div class="dato">
+          <span class="dato-label">Inicio</span>
+          <span class="dato-valor">${formatearFecha(d.fecha_inicio)}</span>
+        </div>
+        <div class="dato">
+          <span class="dato-label">Vencimiento</span>
+          <span class="dato-valor">${formatearFecha(d.fecha_vencimiento)}</span>
+        </div>
+      </div>`;
+  }
+
+  function mostrarError(msg) {
+    document.getElementById('contenido').innerHTML =
+      `<p class="error-msg">⚠️ ${msg}</p>`;
+  }
+</script>
+</body>
+</html>

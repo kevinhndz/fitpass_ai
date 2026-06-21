@@ -1,0 +1,31 @@
+/*
+ * estilos_qr_patch.css — Parche de estilos para el botón de QR.
+ *
+ * Este archivo se añade al final del <head> después de estilos.css.
+ * Así el CSS original queda intacto y solo extendemos lo necesario.
+ *
+ * Por qué un archivo separado y no modificar estilos.css:
+ *   Mantener el archivo original facilita hacer diff de cambios
+ *   y revertir si algo falla. En producción se puede consolidar.
+ */
+
+/* Botón de regenerar QR — verde tenue para distinguirlo del editar (azul) y eliminar (rojo) */
+.btn-qr {
+    color: var(--color-principal);
+}
+.btn-qr:hover {
+    border-color: var(--color-principal);
+    background: rgba(var(--color-principal-rgb), 0.08);
+}
+
+/* Animación de giro mientras se genera el QR */
+.btn-qr:disabled {
+    cursor: wait;
+    opacity: 0.6;
+}
+
+/* Asegura que la columna de acciones con 3 botones no se apriete */
+.acciones-celda {
+    gap: 6px;
+    flex-wrap: nowrap;
+}

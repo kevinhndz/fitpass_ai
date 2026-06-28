@@ -95,12 +95,25 @@ def registrar_cliente():
     return jsonify({"mensaje_pantalla": f"Cliente {nombre} registrado.{nota}", "cliente_id": nuevo_id}), 200
 
 
-# ── Regenerar QR de cliente existente ────────────────────────────────────────
+
 
 @app.route('/api/clientes/<int:id>/qr', methods=['POST'])
 def regenerar_qr(id):
+    # 1. Calcular las nuevas fechas (hoy y un mes después)
+    hoy = date.today()
+    nueva_fecha_vencimiento = hoy + timedelta(days=30)
+
     db = conectar_base_datos()
     cursor = db.cursor(dictionary=True)
+
+    # 2. Actualizar las fechas en la base de datos PRIMERO
+    cursor.execute(
+        "UPDATE clientes SET fecha_inicio = %s, fecha_vencimiento = %s, estado = 'Activo' WHERE id = %s",
+        (hoy, nueva_fecha_vencimiento, id)
+    )
+    db.commit()
+
+    # 3. Leer los datos actualizados para generar el QR
     cursor.execute("SELECT * FROM clientes WHERE id = %s", (id,))
     c = cursor.fetchone()
     cursor.close()
@@ -109,12 +122,13 @@ def regenerar_qr(id):
     if not c:
         return jsonify({"error": "Cliente no encontrado"}), 404
 
+    # 4. Generar y enviar el QR con los datos frescos
     ruta_qr   = generar_qr(c["id"], c["nombre"], c["membresia"], c["fecha_vencimiento"])
     correo_ok = enviar_qr_por_correo(c["correo"], c["nombre"], c["fecha_vencimiento"], ruta_qr)
     wa_ok     = enviar_recordatorio_whatsapp(c["telefono"], c["nombre"], c["fecha_vencimiento"], ruta_qr)
 
     return jsonify({
-        "mensaje_pantalla": f"QR regenerado para {c['nombre']}. "
+        "mensaje_pantalla": f"Membresía renovada y QR generado para {c['nombre']}. "
                             f"{'Correo enviado.' if correo_ok else 'Correo no enviado.'}"
     }), 200
 

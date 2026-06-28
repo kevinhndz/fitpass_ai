@@ -10,7 +10,7 @@ GMAIL_REMITENTE    = "kh925063@gmail.com"
 GMAIL_APP_PASSWORD = "yqnr vqoj ngsi rqwj"
 QR_FOLDER          = os.path.join("static", "qr")
 
-SERVER_IP   = "192.168.1.5"
+SERVER_IP   = "192.168.1.17"
 SERVER_PORT = "5000"
 
 
@@ -33,12 +33,12 @@ def generar_qr(cliente_id: int, nombre: str, membresia: str,
     qr.add_data(url)
     qr.make(fit=True)
 
-    img = qr.make_image(fill_color="#00d68f", back_color="#0d0d10")
+    
+    img = qr.make_image(fill_color="black", back_color="white")
 
     ruta = os.path.join(QR_FOLDER, f"qr_cliente_{cliente_id}.png")
     img.save(ruta)
     return ruta
-
 
 def enviar_qr_por_correo(destinatario: str, nombre: str,
                           fecha_vencimiento: date, ruta_qr: str) -> bool:

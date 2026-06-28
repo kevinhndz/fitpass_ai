@@ -13,7 +13,6 @@ if os.environ.get("WERKZEUG_RUN_MAIN") == "true" or not app.debug:
     iniciar_scheduler(conectar_base_datos)
 
 
-# ── Rutas originales sin cambios ─────────────────────────────────────────────
 
 @app.route('/')
 def ir_al_registro():
@@ -133,7 +132,6 @@ def regenerar_qr(id):
     }), 200
 
 
-# ── NUEVO: Validar membresía al escanear QR ───────────────────────────────────
 
 @app.route('/validar/<int:id>')
 def pagina_validar(id):

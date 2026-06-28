@@ -7,18 +7,23 @@ from whatsapp_utils import enviar_recordatorio_whatsapp
 def _job_recordatorios(conectar_fn):
     """
     Corre cada día a las 9AM.
-    Busca clientes que vencen EXACTAMENTE en 2 días y les manda aviso por correo.
+    Busca clientes ACTIVOS que vencen EXACTAMENTE en 2 días y les manda aviso por correo 
     """
     objetivo = date.today() + timedelta(days=2)
 
     db     = conectar_fn()
     cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM clientes WHERE fecha_vencimiento = %s", (objetivo,))
+    
+   
+    cursor.execute(
+        "SELECT * FROM clientes WHERE fecha_vencimiento = %s AND estado = 'Activo'", 
+        (objetivo,)
+    )
     clientes = cursor.fetchall()
     cursor.close()
     db.close()
 
-    print(f"[Scheduler] {date.today()} — {len(clientes)} cliente(s) vencen el {objetivo}")
+    print(f"[Scheduler] {date.today()} — {len(clientes)} cliente(s) activos vencen el {objetivo}")
 
     for c in clientes:
         # Correo de recordatorio de pago (el nuevo, con mensaje claro)
@@ -29,7 +34,7 @@ def _job_recordatorios(conectar_fn):
             dias_restantes  = 2
         )
 
-        # WhatsApp (opcional, si está configurado)
+        # WhatsApp
         ruta_qr = generar_qr(c["id"], c["nombre"], c["membresia"], c["fecha_vencimiento"])
         ok_wa   = enviar_recordatorio_whatsapp(
             telefono          = c["telefono"],
@@ -39,7 +44,6 @@ def _job_recordatorios(conectar_fn):
         )
 
         print(f"  → {c['nombre']} — correo={'✓' if ok_correo else '✗'} wa={'✓' if ok_wa else '✗'}")
-
 
 def iniciar_scheduler(conectar_fn):
     scheduler = BackgroundScheduler(daemon=True)

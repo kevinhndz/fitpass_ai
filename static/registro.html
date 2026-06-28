@@ -3,142 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sport Fitness - Dashboard</title>
+    <title>Sport Fitness — Dashboard</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="/static/estilos.css">
-    <!-- Parche de estilos para el botón QR (no modifica estilos.css original) -->
-    <link rel="stylesheet" href="/static/estilos_qr_patch.css">
 </head>
 <body>
 
-<header id="menu-principal" class="menu-principal">
+<!-- ── Fondo ── -->
+<div class="bg-layer" aria-hidden="true">
+    <div class="bg-img"></div>
+    <div class="bg-overlay"></div>
+    <canvas id="shader-canvas"></canvas>
+</div>
 
-    <!-- ===== HERO ===== -->
-    <section class="hero">
-        <div class="hero-fondo" aria-hidden="true">
-            <span class="hero-mancha hero-mancha-naranja"></span>
-            <span class="hero-mancha hero-mancha-verde"></span>
-            <span class="hero-mancha hero-mancha-roja"></span>
+<!-- ══════════════════════════════════════
+     MENÚ PRINCIPAL
+══════════════════════════════════════ -->
+<div id="menu-principal">
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <span class="nav-brand">SPORT FITNESS</span>
+        <div class="nav-links">
+            <a href="#" class="nav-link nav-link-active">DASHBOARD</a>
+            <a href="#" class="nav-link" onclick="mostrar('control'); return false;">CLIENTES</a>
+            <a href="#" class="nav-link nav-link-red" onclick="mostrar('reportes'); return false;">RED LIST</a>
         </div>
-
-       
-       
-        <div class="senal-scroll" aria-hidden="true">
-            <span>Desliza</span>
-            <svg width="14" height="22" viewBox="0 0 14 22" fill="none">
-                <path d="M1 1L7 7L13 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M1 11L7 17L13 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
-            </svg>
+        <div class="nav-icons">
+            <span class="material-symbols-outlined nav-icon">notifications</span>
+            <span class="material-symbols-outlined nav-icon">settings</span>
         </div>
-    </section>
+    </nav>
 
-    <!-- ===== VITRINAS (las 3 secciones con scroll) ===== -->
-    <div class="vitrinas">
+    <!-- Hero -->
+    <header class="hero">
+        <h1 class="hero-titulo">SPORT FITNESS</h1>
+        <p class="hero-sub">Disciplina &amp; Compromiso</p>
+    </header>
 
-        <div class="riel-pulso" aria-hidden="true">
-            <span class="riel-nodo riel-nodo-1"></span>
-            <span class="riel-nodo riel-nodo-2"></span>
-            <span class="riel-nodo riel-nodo-3"></span>
-            <span class="riel-viajero"></span>
-        </div>
+    <!-- Cards -->
+    <main class="cards-grid">
 
-        <!-- ── 1. REGISTRO ── -->
-        <article class="vitrina vitrina-registro">
-            <div class="vitrina-texto">
-                <p class="eyebrow">Paso  Alta de miembro</p>
-                <h2>Registra un<br>miembro nuevo</h2>
-                <p class="vitrina-copia">Carga sus datos y genera su código QR de acceso en segundos. Le llega directo al correo, listo para presentar en la entrada.</p>
-                <button type="button" class="boton-vitrina" onclick="mostrar('registro')" aria-label="Registrar nuevo cliente">
-                    Abrir formulario
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
-            </div>
+        <!-- 1. REGISTRO -->
+        <article class="card card-primary">
+            <div class="card-inner">
+                <div class="card-icon card-icon-primary">
+                    <span class="material-symbols-outlined">person_add</span>
+                </div>
+                <h2 class="card-titulo card-titulo-primary">REGISTRO</h2>
+                <p class="card-desc">Registra un miembro nuevo en el ecosistema Sport Fitness. Genera su código QR de acceso al instante.</p>
 
-            <div class="vitrina-ilustracion" aria-hidden="true">
-                <span class="chispa chispa-a"></span>
-                <span class="chispa chispa-b"></span>
-                <span class="chispa chispa-c"></span>
-                <svg class="icono-barra" width="220" height="160" viewBox="0 0 220 160" fill="none">
-                    <g class="barra-grupo">
-                        <rect x="20" y="62" width="22" height="36" rx="4" fill="currentColor" opacity="0.9"/>
-                        <rect x="10" y="70" width="14" height="20" rx="3" fill="currentColor" opacity="0.6"/>
-                        <rect x="40" y="74" width="140" height="12" rx="6" fill="currentColor"/>
-                        <rect x="178" y="62" width="22" height="36" rx="4" fill="currentColor" opacity="0.9"/>
-                        <rect x="196" y="70" width="14" height="20" rx="3" fill="currentColor" opacity="0.6"/>
-                    </g>
-                </svg>
+                <div class="card-anim" aria-hidden="true" style="color:var(--naranja);">
+                    <span class="chispa chispa-a"></span>
+                    <span class="chispa chispa-b"></span>
+                    <span class="chispa chispa-c"></span>
+                    <svg class="icono-barra" width="180" height="90" viewBox="0 0 220 160" fill="none">
+                        <g class="barra-grupo">
+                            <rect x="20" y="62" width="22" height="36" rx="4" fill="currentColor" opacity="0.9"/>
+                            <rect x="10" y="70" width="14" height="20" rx="3" fill="currentColor" opacity="0.6"/>
+                            <rect x="40" y="74" width="140" height="12" rx="6" fill="currentColor"/>
+                            <rect x="178" y="62" width="22" height="36" rx="4" fill="currentColor" opacity="0.9"/>
+                            <rect x="196" y="70" width="14" height="20" rx="3" fill="currentColor" opacity="0.6"/>
+                        </g>
+                    </svg>
+                </div>
+
+                <button class="card-btn card-btn-primary" onclick="mostrar('registro')">ABRIR FORMULARIO</button>
             </div>
         </article>
 
-        <!-- ── 2. CONTROL / CLIENTES ── -->
-        <article class="vitrina vitrina-control">
-            <div class="vitrina-ilustracion" aria-hidden="true">
-                <svg class="icono-credencial" width="200" height="170" viewBox="0 0 200 170" fill="none">
-                    <rect x="20" y="10" width="160" height="150" rx="18" fill="currentColor" opacity="0.08" stroke="currentColor" stroke-width="2"/>
-                    <circle cx="100" cy="58" r="22" fill="currentColor" opacity="0.85"/>
-                    <rect x="60" y="92" width="80" height="9" rx="4.5" fill="currentColor" opacity="0.7"/>
-                    <rect x="72" y="110" width="56" height="7" rx="3.5" fill="currentColor" opacity="0.4"/>
-                    <rect class="linea-escaneo" x="20" y="20" width="160" height="6" rx="3" fill="currentColor"/>
-                </svg>
-            </div>
+        <!-- 2. CONTROL -->
+        <article class="card card-secondary">
+            <div class="card-inner">
+                <div class="scan-line"></div>
+                <div class="card-icon card-icon-secondary">
+                    <span class="material-symbols-outlined">badge</span>
+                </div>
+                <h2 class="card-titulo card-titulo-secondary">CONTROL</h2>
+                <p class="card-desc">Revisa tu equipo activo. Monitoriza entradas y salidas con precisión milimétrica y telemetría de zona.</p>
 
-            <div class="vitrina-texto">
-                <p class="eyebrow">Gestión diaria</p>
-                <h2>Revisa tu<br>equipo activo</h2>
-                <p class="vitrina-copia">Busca, edita o reenvía el QR de cualquier miembro registrado. Todo tu roster, siempre a la mano.</p>
-                <button type="button" class="boton-vitrina" onclick="mostrar('control')" aria-label="Ver clientes existentes">
-                    Ver clientes existentes
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
-            </div>
-        </article>
+                <div class="card-anim" aria-hidden="true" style="color:var(--verde);">
+                    <svg class="icono-credencial" width="160" height="130" viewBox="0 0 200 170" fill="none">
+                        <rect x="20" y="10" width="160" height="150" rx="18" fill="currentColor" opacity="0.08" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="100" cy="58" r="22" fill="currentColor" opacity="0.85"/>
+                        <rect x="60" y="92" width="80" height="9" rx="4.5" fill="currentColor" opacity="0.7"/>
+                        <rect x="72" y="110" width="56" height="7" rx="3.5" fill="currentColor" opacity="0.4"/>
+                        <rect class="linea-escaneo" x="20" y="20" width="160" height="6" rx="3" fill="currentColor"/>
+                    </svg>
+                </div>
 
-        <!-- ── 3. REPORTES / COBROS ── -->
-        <article class="vitrina vitrina-reportes">
-            <div class="vitrina-texto">
-                <p class="eyebrow">Alerta de cobros</p>
-                <h2>Quién<br>vence hoy</h2>
-                <p class="vitrina-copia">La lista roja de membresías que vencen hoy. Cóbralas antes de que el cliente se vaya del gimnasio.</p>
-                <button type="button" class="boton-vitrina" onclick="mostrar('reportes')" aria-label="Ver lista roja de cobros">
-                    Ver lista roja
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
-            </div>
-
-            <div class="vitrina-ilustracion" aria-hidden="true">
-                <span class="ping ping-a"></span>
-                <span class="ping ping-b"></span>
-                <svg class="icono-alarma" width="180" height="170" viewBox="0 0 180 170" fill="none">
-                    <path class="campana" d="M90 20C68 20 54 38 54 62V86C54 96 49 105 41 111H139C131 105 126 96 126 86V62C126 38 112 20 90 20Z" fill="currentColor" opacity="0.9"/>
-                    <path d="M75 118C75 128 81 135 90 135C99 135 105 128 105 118" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
-                    <circle cx="90" cy="16" r="7" fill="currentColor"/>
-                </svg>
+                <button class="card-btn card-btn-secondary" onclick="mostrar('control')">VER CLIENTES</button>
             </div>
         </article>
 
-    </div>
-</header>
+        <!-- 3. REPORTES -->
+        <article class="card card-tertiary">
+            <div class="card-inner">
+                <div class="radar-effect"></div>
+                <div class="card-icon card-icon-tertiary">
+                    <span class="material-symbols-outlined">warning</span>
+                </div>
+                <h2 class="card-titulo card-titulo-tertiary">REPORTES</h2>
+                <p class="card-desc">¿Quién vence hoy? Accede a la lista roja de membresías expiradas y gestiona renovaciones críticas.</p>
 
+                <div class="card-anim" aria-hidden="true" style="color:var(--rojo);">
+                    <span class="ping ping-a"></span>
+                    <span class="ping ping-b"></span>
+                    <svg class="icono-alarma" width="140" height="130" viewBox="0 0 180 170" fill="none">
+                        <path class="campana" d="M90 20C68 20 54 38 54 62V86C54 96 49 105 41 111H139C131 105 126 96 126 86V62C126 38 112 20 90 20Z" fill="currentColor" opacity="0.9"/>
+                        <path d="M75 118C75 128 81 135 90 135C99 135 105 128 105 118" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                        <circle cx="90" cy="16" r="7" fill="currentColor"/>
+                    </svg>
+                </div>
+
+                <button class="card-btn card-btn-tertiary" onclick="mostrar('reportes')">VER LISTA ROJA</button>
+            </div>
+        </article>
+
+    </main>
+
+    <!-- Footer de la navbar -->
+    <footer class="pie-nav">
+        <div class="pie-nav-inner">
+            <span class="pie-copy">© 2026 SPORT FITNESS ELITE SYSTEM // v2.1.0 // CORE ENGINE READY</span>
+            <div class="pie-icons">
+                <span class="material-symbols-outlined">terminal</span>
+                <span class="material-symbols-outlined">data_object</span>
+                <span class="material-symbols-outlined">security</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Mobile bottom nav -->
+    <nav class="mob-nav">
+        <div class="mob-nav-item mob-active" onclick="location.reload()">
+            <span class="material-symbols-outlined">home</span>
+            <span>HOME</span>
+        </div>
+        <div class="mob-nav-item" onclick="mostrar('control')">
+            <span class="material-symbols-outlined">group</span>
+            <span>CLIENTS</span>
+        </div>
+        <div class="mob-nav-item" onclick="mostrar('reportes')">
+            <span class="material-symbols-outlined">report_problem</span>
+            <span>WARNING</span>
+        </div>
+    </nav>
+
+</div><!-- /menu-principal -->
+
+<!-- ══════════════════════════════════════
+     SECCIONES INTERNAS
+══════════════════════════════════════ -->
 <main>
+
+    <!-- Registro -->
     <section id="seccion-registro" class="panel panel-tema-registro" style="display:none;">
-        <button class="btn-volver" onclick="location.reload()">← Volver al Menú</button>
+        <button class="btn-volver" onclick="location.reload()">← Volver al menú</button>
         <h2>📝 Formulario de Inscripción</h2>
         <form id="formulario-registro">
             <div class="campo">
                 <label for="nombre">Nombre</label>
-                <input type="text" id="nombre" placeholder="Nombre" required>
+                <input type="text" id="nombre" placeholder="Nombre completo" required>
             </div>
             <div class="campo">
                 <label for="whatsapp">WhatsApp</label>
-                <input type="tel" id="whatsapp" placeholder="WhatsApp" required>
+                <input type="tel" id="whatsapp" placeholder="+504 0000-0000" required>
             </div>
             <div class="campo">
                 <label for="correo">Correo</label>
-                <input type="email" id="correo" placeholder="Correo" required>
+                <input type="email" id="correo" placeholder="cliente@correo.com" required>
             </div>
             <div class="campo">
                 <label for="membresia">Membresía</label>
@@ -151,10 +190,10 @@
         </form>
     </section>
 
+    <!-- Control -->
     <section id="seccion-control" class="panel panel-ancho panel-tema-control" style="display:none;">
-        <button class="btn-volver" onclick="location.reload()">← Volver al Menú</button>
+        <button class="btn-volver" onclick="location.reload()">← Volver al menú</button>
         <h2>Clientes Existentes</h2>
-
         <div class="submenu">
             <button class="btn btn-chip" onclick="traerClientes()">📋 Ver Lista Completa</button>
             <form class="buscador" onsubmit="event.preventDefault(); buscarClientes();">
@@ -162,20 +201,12 @@
                 <button type="submit" class="btn btn-chip">🔍 Buscar</button>
             </form>
         </div>
-
         <div class="tabla-wrapper">
             <table id="tabla-clientes">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Teléfono</th>
-                        <th>Correo</th>
-                        <th>Membresía</th>
-                        <th>Inicio</th>
-                        <th>Vencimiento</th>
-                        <!-- Nueva columna — el colspan en estado-vacio se actualizó a 8 en app.js -->
-                        <th>Acciones</th>
+                        <th>ID</th><th>Nombre</th><th>Teléfono</th><th>Correo</th>
+                        <th>Membresía</th><th>Inicio</th><th>Vencimiento</th><th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="cuerpo-tabla">
@@ -185,18 +216,15 @@
         </div>
     </section>
 
+    <!-- Reportes -->
     <section id="seccion-reportes" class="panel panel-ancho panel-tema-reportes" style="display:none;">
-        <button class="btn-volver" onclick="location.reload()">← Volver al Menú</button>
+        <button class="btn-volver" onclick="location.reload()">← Volver al menú</button>
         <h2>🚨 Lista Roja: Cobros de Hoy</h2>
-
         <div class="tabla-wrapper">
-            <table id="tabla-reportes" style="width: 100%; border-collapse: collapse; background: var(--color-tarjeta); text-align: left;">
+            <table id="tabla-reportes">
                 <thead>
                     <tr>
-                        <th style="padding: 14px 16px; border-bottom: 1px solid var(--color-borde); color: var(--color-texto-secundario);">Nombre</th>
-                        <th style="padding: 14px 16px; border-bottom: 1px solid var(--color-borde); color: var(--color-texto-secundario);">Teléfono</th>
-                        <th style="padding: 14px 16px; border-bottom: 1px solid var(--color-borde); color: var(--color-texto-secundario);">Membresía</th>
-                        <th style="padding: 14px 16px; border-bottom: 1px solid var(--color-borde); color: var(--color-texto-secundario);">Vencimiento</th>
+                        <th>Nombre</th><th>Teléfono</th><th>Membresía</th><th>Vencimiento</th>
                     </tr>
                 </thead>
                 <tbody id="cuerpo-tabla-reportes">
@@ -205,8 +233,10 @@
             </table>
         </div>
     </section>
+
 </main>
 
+<!-- Modal de edición -->
 <div id="modal-editar" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="titulo-modal">
     <div class="modal-caja">
         <h2 id="titulo-modal">Editar Cliente</h2>

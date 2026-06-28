@@ -4,87 +4,153 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Validar Acceso — Sport Fitness</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --verde:  #00d68f;
-      --rojo:   #ff4d4d;
-      --amarillo: #f5a623;
-      --fondo:  #0d0d10;
-      --tarjeta: #1a1a1e;
-      --borde:  #2c2c33;
-      --texto:  #ffffff;
-      --subtexto: #a8a8b3;
+      --verde:     #00e5a0;
+      --verde-rgb: 0, 229, 160;
+      --rojo:      #ff4d6d;
+      --rojo-rgb:  255, 77, 109;
+      --amarillo:  #f5a623;
+      --am-rgb:    245, 166, 35;
+      --fondo:     #080810;
+      --tarjeta:   rgba(16, 16, 26, 0.82);
+      --borde:     rgba(255, 255, 255, 0.09);
+      --borde-top: rgba(255, 255, 255, 0.18);
+      --texto:     #f0f0f8;
+      --subtexto:  #8888a0;
     }
 
     body {
       background: var(--fondo);
       color: var(--texto);
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Manrope', 'Segoe UI', sans-serif;
       min-height: 100dvh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 24px 20px;
+      padding: 28px 20px;
+      -webkit-font-smoothing: antialiased;
+      position: relative;
+      overflow: hidden;
     }
 
+    /* — Fondo ambient — */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 15% 15%, rgba(var(--verde-rgb), 0.12), transparent 55%),
+        radial-gradient(ellipse at 85% 85%, rgba(var(--rojo-rgb), 0.08), transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Grain */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      background-size: 128px;
+      opacity: 0.55;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Contenido sobre fondo */
+    .logo, .gym-nombre, #contenido, .pie { position: relative; z-index: 2; }
+
+    /* — Logo — */
     .logo {
-      font-size: 36px;
-      margin-bottom: 8px;
+      font-size: 48px;
+      margin-bottom: 6px;
+      filter: drop-shadow(0 0 24px rgba(var(--verde-rgb), 0.5));
     }
 
     .gym-nombre {
-      font-size: 14px;
+      font-size: 11px;
       color: var(--subtexto);
-      margin-bottom: 32px;
-      letter-spacing: 0.08em;
+      margin-bottom: 36px;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
+      font-weight: 700;
     }
 
-    /* Tarjeta de resultado */
+    /* — Tarjeta de resultado — */
     .tarjeta {
       width: 100%;
-      max-width: 360px;
-      border-radius: 20px;
-      padding: 32px 24px;
+      max-width: 380px;
+      border-radius: 24px;
+      padding: 36px 28px;
       text-align: center;
-      border: 2px solid var(--borde);
+      border: 1px solid var(--borde);
+      border-top: 1px solid var(--borde-top);
       background: var(--tarjeta);
-      animation: aparecer 0.4s cubic-bezier(.22,1,.36,1);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      box-shadow:
+        0 2px 0 rgba(255,255,255,0.07) inset,
+        0 32px 64px -16px rgba(0, 0, 0, 0.7);
+      animation: aparecer 0.5s cubic-bezier(.22,1,.36,1) both;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Brillo superior cristal */
+    .tarjeta::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 20px; right: 20px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
     }
 
     @keyframes aparecer {
-      from { opacity: 0; transform: translateY(16px) scale(0.97); }
+      from { opacity: 0; transform: translateY(24px) scale(0.96); }
       to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    .tarjeta.verde { border-color: var(--verde); box-shadow: 0 0 40px rgba(0,214,143,0.2); }
-    .tarjeta.rojo  { border-color: var(--rojo);  box-shadow: 0 0 40px rgba(255,77,77,0.2); }
-    .tarjeta.amarillo { border-color: var(--amarillo); box-shadow: 0 0 40px rgba(245,166,35,0.2); }
+    /* — Variantes de color — */
+    .verde    { border-color: rgba(var(--verde-rgb), 0.35); box-shadow: 0 2px 0 rgba(255,255,255,0.07) inset, 0 32px 64px -16px rgba(0,0,0,0.7), 0 0 60px rgba(var(--verde-rgb), 0.15); }
+    .rojo     { border-color: rgba(var(--rojo-rgb), 0.35);  box-shadow: 0 2px 0 rgba(255,255,255,0.07) inset, 0 32px 64px -16px rgba(0,0,0,0.7), 0 0 60px rgba(var(--rojo-rgb), 0.15); }
+    .amarillo { border-color: rgba(var(--am-rgb), 0.35);    box-shadow: 0 2px 0 rgba(255,255,255,0.07) inset, 0 32px 64px -16px rgba(0,0,0,0.7), 0 0 60px rgba(var(--am-rgb), 0.15); }
 
+    /* — Icono de estado — */
     .icono-estado {
       font-size: 64px;
       margin-bottom: 16px;
       display: block;
+      animation: iconoEntrar 0.6s cubic-bezier(.34,1.56,.64,1) 0.1s both;
+    }
+
+    @keyframes iconoEntrar {
+      from { transform: scale(0.4) rotate(-10deg); opacity: 0; }
+      to   { transform: scale(1) rotate(0deg);     opacity: 1; }
     }
 
     .estado-titulo {
-      font-size: 22px;
-      font-weight: 800;
-      margin-bottom: 8px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      letter-spacing: 0.06em;
+      margin-bottom: 10px;
     }
 
-    .verde  .estado-titulo { color: var(--verde); }
-    .rojo   .estado-titulo { color: var(--rojo); }
-    .amarillo .estado-titulo { color: var(--amarillo); }
+    .verde    .estado-titulo { color: var(--verde);    text-shadow: 0 0 24px rgba(var(--verde-rgb), 0.6); }
+    .rojo     .estado-titulo { color: var(--rojo);     text-shadow: 0 0 24px rgba(var(--rojo-rgb), 0.6); }
+    .amarillo .estado-titulo { color: var(--amarillo); text-shadow: 0 0 24px rgba(var(--am-rgb), 0.6); }
 
     .estado-subtitulo {
-      font-size: 15px;
+      font-size: 14px;
       color: var(--subtexto);
       margin-bottom: 28px;
-      line-height: 1.5;
+      line-height: 1.65;
     }
 
     .divider {
@@ -93,52 +159,62 @@
       margin: 20px 0;
     }
 
+    /* — Datos del cliente — */
     .dato {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 0;
+      padding: 12px 0;
       font-size: 14px;
       border-bottom: 1px solid var(--borde);
     }
     .dato:last-child { border-bottom: 0; }
 
-    .dato-label { color: var(--subtexto); }
-    .dato-valor { font-weight: 700; }
+    .dato-label { color: var(--subtexto); font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+    .dato-valor { font-weight: 700; font-size: 14px; }
 
-    /* Estado de carga */
+    /* — Spinner de carga — */
     .cargando {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 16px;
+      gap: 18px;
       color: var(--subtexto);
-      font-size: 15px;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
     }
 
     .spinner {
-      width: 48px;
-      height: 48px;
-      border: 3px solid var(--borde);
+      width: 52px;
+      height: 52px;
+      border: 3px solid rgba(var(--verde-rgb), 0.15);
       border-top-color: var(--verde);
       border-radius: 50%;
-      animation: girar 0.8s linear infinite;
+      animation: girar 0.75s linear infinite;
+      box-shadow: 0 0 24px rgba(var(--verde-rgb), 0.25);
     }
 
-    @keyframes girar {
-      to { transform: rotate(360deg); }
-    }
+    @keyframes girar { to { transform: rotate(360deg); } }
 
     .error-msg {
       color: var(--rojo);
       font-size: 15px;
       text-align: center;
+      padding: 20px;
+      background: rgba(var(--rojo-rgb), 0.08);
+      border: 1px solid rgba(var(--rojo-rgb), 0.25);
+      border-radius: 14px;
+      max-width: 380px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
 
     .pie {
-      margin-top: 32px;
+      margin-top: 36px;
       font-size: 11px;
-      color: #3a3a42;
+      color: rgba(255,255,255,0.12);
+      letter-spacing: 0.06em;
     }
   </style>
 </head>
@@ -157,8 +233,7 @@
   <p class="pie">© 2026 Sport Fitness — Uso interno de recepción</p>
 
 <script>
-  // Extrae el ID del cliente de la URL: /validar/12 → 12
-  const partes   = window.location.pathname.split('/');
+  const partes    = window.location.pathname.split('/');
   const clienteId = partes[partes.length - 1];
 
   if (!clienteId || isNaN(clienteId)) {
@@ -171,34 +246,30 @@
   }
 
   function renderizar(d) {
-    const hoy      = new Date();
+    const hoy    = new Date();
     hoy.setHours(0, 0, 0, 0);
-    const vence    = new Date(d.fecha_vencimiento + 'T00:00:00');
-    const diffMs   = vence - hoy;
-    const dias     = Math.round(diffMs / (1000 * 60 * 60 * 24));
+    const vence  = new Date(d.fecha_vencimiento + 'T00:00:00');
+    const diffMs = vence - hoy;
+    const dias   = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
     let clase, icono, titulo, subtitulo;
 
     if (dias > 1) {
-      // Verde: le quedan más de 1 día
       clase     = 'verde';
       icono     = '✅';
       titulo    = 'PUEDE PASAR';
       subtitulo = `Su membresía vence en <strong>${dias} día(s)</strong>.<br>Recuérdale que debe pagar antes de esa fecha.`;
     } else if (dias === 1) {
-      // Amarillo: vence mañana
       clase     = 'amarillo';
       icono     = '⚠️';
       titulo    = 'VENCE MAÑANA';
       subtitulo = `Hoy es el último día con cobertura.<br>Invítale a pagar hoy mismo.`;
     } else if (dias === 0) {
-      // Rojo fuerte: vence exactamente hoy
       clase     = 'rojo';
       icono     = '🔴';
       titulo    = 'LE TOCA PAGAR HOY';
       subtitulo = `Su membresía <strong>vence hoy</strong>.<br>Debe pagar antes de salir.`;
     } else {
-      // Rojo: ya venció
       const retraso = Math.abs(dias);
       clase     = 'rojo';
       icono     = '❌';

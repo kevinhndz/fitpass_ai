@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sport Fitness — Acceso</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/login.css">
+</head>
+<body>
+
+<!-- Fondo -->
+<div class="bg-layer" aria-hidden="true">
+    <div class="bg-img"></div>
+    <div class="bg-overlay"></div>
+</div>
+
+<main class="login-main">
+    <div class="login-panel">
+        <div class="login-glow" aria-hidden="true"></div>
+
+        <header class="login-header">
+            <h1 class="login-titulo">SPORT FITNESS</h1>
+            <p class="login-sub">Acceso Elite</p>
+        </header>
+
+        <form action="/login" method="POST" class="login-form">
+            <div class="campo">
+                <label for="username">
+                    <span class="material-symbols-outlined">mail</span>
+                    Usuario / Correo
+                </label>
+                <input type="text" id="username" name="username" placeholder="atleta@ejemplo.com" required>
+            </div>
+
+            <div class="campo">
+                <div class="campo-label-row">
+                    <label for="password">
+                        <span class="material-symbols-outlined">lock</span>
+                        Contraseña
+                    </label>
+                    <a href="#" class="login-link">¿Olvidaste tu contraseña?</a>
+                </div>
+                <div class="campo-password">
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                    <button type="button" class="btn-ver-pass" aria-label="Mostrar contraseña" onclick="togglePassword()">
+                        <span class="material-symbols-outlined" id="icono-ojo">visibility_off</span>
+                    </button>
+                </div>
+            </div>
+
+            <label class="campo-checkbox">
+                <input type="checkbox" id="recordar" name="recordar">
+                <span>Mantener sesión iniciada</span>
+            </label>
+
+            <button type="submit" class="btn-entrar">ENTRAR</button>
+        </form>
+    </div>
+</main>
+
+<script>
+function togglePassword() {
+    const input = document.getElementById('password');
+    const icono = document.getElementById('icono-ojo');
+    const visible = input.type === 'text';
+    input.type = visible ? 'password' : 'text';
+    icono.textContent = visible ? 'visibility_off' : 'visibility';
+}
+</script>
+
+</body>
+</html>

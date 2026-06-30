@@ -1,4 +1,6 @@
-from flask import Flask, send_from_directory, request, jsonify, send_file
+from flask import Flask, send_from_directory, request, jsonify, send_file, redirect, url_for, flash
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
+from werkzeug.security import check_password_hash
 from datetime import date, timedelta
 import os
 
@@ -8,6 +10,59 @@ from whatsapp_utils import enviar_recordatorio_whatsapp
 from scheduler import iniciar_scheduler
 
 app = Flask(__name__, static_folder='static')
+app.secret_key = 'kevstpg'
+
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+class Usuario(UserMixin):
+    def __init__(self, id, username):
+        self.id = id
+        self.username = username
+
+@login_manager.user_loader
+def load_user(user_id):
+    db = conectar_base_datos()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM usuarios WHERE id = %s", (user_id,))
+    u = cursor.fetchone()
+    cursor.close()
+    db.close()
+    if u:
+        return Usuario(u['id'], u['username'])
+    return None
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        user_in = request.form['username']
+        pw_in = request.form['password']
+        
+        db = conectar_base_datos()
+        cursor = db.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM usuarios WHERE username = %s", (user_in,))
+        user_db = cursor.fetchone()
+        cursor.close()
+        db.close()
+        
+        if user_db and check_password_hash(user_db['password_hash'], pw_in):
+            user_obj = Usuario(user_db['id'], user_db['username'])
+            login_user(user_obj)
+            return redirect(url_for('ir_al_registro'))
+            
+        flash("Usuario o contraseña incorrectos")
+        
+    return send_from_directory('static', 'login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
 
 if os.environ.get("WERKZEUG_RUN_MAIN") == "true" or not app.debug:
     iniciar_scheduler(conectar_base_datos)
@@ -15,10 +70,12 @@ if os.environ.get("WERKZEUG_RUN_MAIN") == "true" or not app.debug:
 
 
 @app.route('/')
+@login_required
 def ir_al_registro():
     return send_from_directory('static', 'registro.html')
 
 @app.route('/api/clientes', methods=['GET'])
+@login_required
 def obtener_clientes():
     buscar = request.args.get('buscar')
     db = conectar_base_datos()
@@ -34,6 +91,7 @@ def obtener_clientes():
     return jsonify(datos)
 
 @app.route('/api/clientes/<int:id>', methods=['PUT', 'DELETE'])
+@login_required
 def manejar_cliente(id):
     db = conectar_base_datos()
     cursor = db.cursor()
@@ -54,6 +112,7 @@ def manejar_cliente(id):
     return jsonify({"mensaje_pantalla": mensaje}), 200
 
 @app.route('/api/reportes/hoy', methods=['GET'])
+@login_required
 def obtener_reportes_hoy():
     db = conectar_base_datos()
     cursor = db.cursor(dictionary=True)
@@ -64,9 +123,10 @@ def obtener_reportes_hoy():
     return jsonify(datos)
 
 
-# ── Registro: genera QR + envía correo ───────────────────────────────────────
+# ── Registro: genera QR +envia el correo ───────────────────────────────────────
 
 @app.route('/api/registrar', methods=['POST'])
+@login_required
 def registrar_cliente():
     datos     = request.get_json()
     nombre    = datos.get('nombre')
@@ -94,11 +154,10 @@ def registrar_cliente():
     return jsonify({"mensaje_pantalla": f"Cliente {nombre} registrado.{nota}", "cliente_id": nuevo_id}), 200
 
 
-
-
 @app.route('/api/clientes/<int:id>/qr', methods=['POST'])
+@login_required
 def regenerar_qr(id):
-    # 1. Calcular las nuevas fechas (hoy y un mes después)
+    # 1. Calcular las nuevas fechas (hoy y un mes despues)
     hoy = date.today()
     nueva_fecha_vencimiento = hoy + timedelta(days=30)
 
@@ -132,13 +191,9 @@ def regenerar_qr(id):
     }), 200
 
 
-
 @app.route('/validar/<int:id>')
 def pagina_validar(id):
-    """
-    Sirve la página HTML de validación.
-    El celular llega aquí al escanear el QR.
-    """
+   
     return send_from_directory('static', 'validar.html')
 
 @app.route('/api/validar/<int:id>')
@@ -172,5 +227,5 @@ def ver_qr(id):
 
 
 if __name__ == '__main__':
-    # host='0.0.0.0' hace que Flask sea accesible desde el celular en la misma red WiFi
+   
     app.run(debug=True, host='0.0.0.0', port=5000)

@@ -36,7 +36,15 @@
         </div>
         <div class="nav-icons">
             <span class="material-symbols-outlined nav-icon">notifications</span>
-            <span class="material-symbols-outlined nav-icon">settings</span>
+            <div class="nav-icon-menu">
+                <span class="material-symbols-outlined nav-icon" onclick="toggleMenuUsuario(event)">settings</span>
+                <div id="menu-usuario" class="dropdown-usuario">
+                    <a href="/logout" class="dropdown-item">
+                        <span class="material-symbols-outlined">logout</span>
+                        Salir
+                    </a>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -291,5 +299,14 @@
 </footer>
 
 <script src="/static/app.js"></script>
+<script>
+function toggleMenuUsuario(e) {
+    e.stopPropagation();
+    document.getElementById('menu-usuario').classList.toggle('abierto');
+}
+document.addEventListener('click', () => {
+    document.getElementById('menu-usuario').classList.remove('abierto');
+});
+</script>
 </body>
 </html>

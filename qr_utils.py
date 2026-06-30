@@ -5,24 +5,36 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from datetime import date
+from dotenv import load_dotenv
 
-GMAIL_REMITENTE    = "kh925063@gmail.com"
-GMAIL_APP_PASSWORD = "yqnr vqoj ngsi rqwj"
-QR_FOLDER          = os.path.join("static", "qr")
+load_dotenv()
 
-SERVER_IP   = "192.168.1.19"
-SERVER_PORT = "5000"
+GMAIL_REMITENTE    = os.environ.get("GMAIL_REMITENTE")
+GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD")
+QR_FOLDER           = os.path.join("static", "qr")
+
+# SERVER_DOMAIN debe ser tu dominio en producción (ej. "tudominio.com")
+# o la IP local solo mientras pruebas dentro del gimnasio.
+# SERVER_PORT vacío si usas HTTPS/Nginx en el puerto 443 (producción).
+SERVER_DOMAIN = os.environ.get("SERVER_DOMAIN", "localhost")
+SERVER_PORT   = os.environ.get("SERVER_PORT", "5000")
 
 
 def _asegurar_carpeta():
     os.makedirs(QR_FOLDER, exist_ok=True)
 
 
+def _construir_url(cliente_id: int) -> str:
+    if SERVER_PORT:
+        return f"http://{SERVER_DOMAIN}:{SERVER_PORT}/validar/{cliente_id}"
+    return f"https://{SERVER_DOMAIN}/validar/{cliente_id}"
+
+
 def generar_qr(cliente_id: int, nombre: str, membresia: str,
                fecha_vencimiento: date) -> str:
     _asegurar_carpeta()
 
-    url = f"http://{SERVER_IP}:{SERVER_PORT}/validar/{cliente_id}"
+    url = _construir_url(cliente_id)
 
     qr = qrcode.QRCode(
         version=1,

@@ -3,14 +3,17 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from werkzeug.security import check_password_hash
 from datetime import date, timedelta
 import os
+from dotenv import load_dotenv
 
 from conexion import conectar_base_datos
 from qr_utils import generar_qr, enviar_qr_por_correo, enviar_correo_recordatorio
 from whatsapp_utils import enviar_recordatorio_whatsapp
 from scheduler import iniciar_scheduler
 
+load_dotenv()
+
 app = Flask(__name__, static_folder='static')
-app.secret_key = 'kevstpg'
+app.secret_key = os.environ.get("FLASK_SECRET_KEY")
 
 
 login_manager = LoginManager()
@@ -123,20 +126,6 @@ def obtener_reportes_hoy():
     return jsonify(datos)
 
 
-# ── Registro: genera QR + envía el correo ───────────────────────────────────────
-#
-# Soporta dos escenarios desde el mismo formulario:
-#
-#  1. CLIENTE NUEVO  → el checkbox "Cliente migrado" va desmarcado, el frontend
-#     manda fecha_inicio/fecha_vencimiento como strings vacíos ("").
-#     Aquí se calcula automáticamente: fecha_inicio = hoy, vencimiento = hoy + 30 días.
-#
-#  2. CLIENTE MIGRADO (papel/Word) → el checkbox va marcado, el frontend exige
-#     y manda las dos fechas reales tomadas del papel. Aquí se usan tal cual,
-#     SIN sumar 30 días ni nada — el QR se genera con esas fechas exactas.
-#
-# bool(fecha_inicio_str) cubre tanto None como "" (string vacío), que es lo
-# que realmente llega cuando el checkbox de migración está desmarcado.
 
 @app.route('/api/registrar', methods=['POST'])
 @login_required
@@ -147,24 +136,13 @@ def registrar_cliente():
     correo    = datos.get('correo')
     membresia = datos.get('membresia')
     hoy       = date.today()
-
-    fecha_inicio_str = datos.get('fecha_inicio')
-    fecha_venc_str   = datos.get('fecha_vencimiento')
-
-    if fecha_inicio_str and fecha_venc_str:
-        # Cliente migrado: fechas reales del papel, tal cual.
-        fecha_inicio = date.fromisoformat(fecha_inicio_str)
-        vencimiento  = date.fromisoformat(fecha_venc_str)
-    else:
-        # Cliente nuevo: hoy + 30 días, automático.
-        fecha_inicio = hoy
-        vencimiento  = hoy + timedelta(days=30)
+    vencimiento = hoy + timedelta(days=30)
 
     db = conectar_base_datos()
     cursor = db.cursor()
     cursor.execute(
         "INSERT INTO clientes (nombre, telefono, fecha_inicio, fecha_vencimiento, estado, correo, membresia) VALUES (%s,%s,%s,%s,%s,%s,%s)",
-        (nombre, whatsapp, fecha_inicio, vencimiento, "Activo", correo, membresia)
+        (nombre, whatsapp, hoy, vencimiento, "Activo", correo, membresia)
     )
     db.commit()
     nuevo_id = cursor.lastrowid
@@ -195,7 +173,7 @@ def regenerar_qr(id):
     )
     db.commit()
 
-    # 3. Leer los datos actualizados para generar el QR
+
     cursor.execute("SELECT * FROM clientes WHERE id = %s", (id,))
     c = cursor.fetchone()
     cursor.close()
@@ -204,7 +182,6 @@ def regenerar_qr(id):
     if not c:
         return jsonify({"error": "Cliente no encontrado"}), 404
 
-    # 4. Generar y enviar el QR con los datos frescos
     ruta_qr   = generar_qr(c["id"], c["nombre"], c["membresia"], c["fecha_vencimiento"])
     correo_ok = enviar_qr_por_correo(c["correo"], c["nombre"], c["fecha_vencimiento"], ruta_qr)
     wa_ok     = enviar_recordatorio_whatsapp(c["telefono"], c["nombre"], c["fecha_vencimiento"], ruta_qr)
@@ -236,7 +213,7 @@ def api_validar(id):
     if not c:
         return jsonify({"error": "Cliente no encontrado"}), 404
 
-    # Convertir fechas a string para que JSON las serialice bien
+   
     c["fecha_inicio"]      = str(c["fecha_inicio"])
     c["fecha_vencimiento"] = str(c["fecha_vencimiento"])
     return jsonify(c)
@@ -251,5 +228,6 @@ def ver_qr(id):
 
 
 if __name__ == '__main__':
-   
-    app.run(debug=True, host='0.0.0.0', port=5000)
+
+    #
+    app.run(debug=False, host='0.0.0.0', port=5000)

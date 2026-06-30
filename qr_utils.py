@@ -10,7 +10,7 @@ GMAIL_REMITENTE    = "kh925063@gmail.com"
 GMAIL_APP_PASSWORD = "yqnr vqoj ngsi rqwj"
 QR_FOLDER          = os.path.join("static", "qr")
 
-SERVER_IP   = "192.168.1.17"
+SERVER_IP   = "192.168.1.19"
 SERVER_PORT = "5000"
 
 

@@ -186,6 +186,23 @@
                     <option value="mensual_estudiante">Mensualidad Estudiante</option>
                 </select>
             </div>
+
+            <label class="campo-checkbox" style="margin: 4px 0 8px;">
+                <input type="checkbox" id="es_migracion" onchange="toggleFechasMigracion()">
+                <span>Cliente migrado (ya pagó antes de hoy — usar fecha del papel)</span>
+            </label>
+
+            <div id="campos-migracion" style="display:none;">
+                <div class="campo">
+                    <label for="fecha_inicio">Fecha de pago (según papel)</label>
+                    <input type="date" id="fecha_inicio">
+                </div>
+                <div class="campo">
+                    <label for="fecha_vencimiento">Fecha de vencimiento</label>
+                    <input type="date" id="fecha_vencimiento">
+                </div>
+            </div>
+
             <button type="submit" class="btn btn-primario btn-ancho">Guardar Cliente</button>
         </form>
     </section>

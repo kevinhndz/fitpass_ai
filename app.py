@@ -123,7 +123,20 @@ def obtener_reportes_hoy():
     return jsonify(datos)
 
 
-# ── Registro: genera QR +envia el correo ───────────────────────────────────────
+# ── Registro: genera QR + envía el correo ───────────────────────────────────────
+#
+# Soporta dos escenarios desde el mismo formulario:
+#
+#  1. CLIENTE NUEVO  → el checkbox "Cliente migrado" va desmarcado, el frontend
+#     manda fecha_inicio/fecha_vencimiento como strings vacíos ("").
+#     Aquí se calcula automáticamente: fecha_inicio = hoy, vencimiento = hoy + 30 días.
+#
+#  2. CLIENTE MIGRADO (papel/Word) → el checkbox va marcado, el frontend exige
+#     y manda las dos fechas reales tomadas del papel. Aquí se usan tal cual,
+#     SIN sumar 30 días ni nada — el QR se genera con esas fechas exactas.
+#
+# bool(fecha_inicio_str) cubre tanto None como "" (string vacío), que es lo
+# que realmente llega cuando el checkbox de migración está desmarcado.
 
 @app.route('/api/registrar', methods=['POST'])
 @login_required
@@ -134,13 +147,24 @@ def registrar_cliente():
     correo    = datos.get('correo')
     membresia = datos.get('membresia')
     hoy       = date.today()
-    vencimiento = hoy + timedelta(days=30)
+
+    fecha_inicio_str = datos.get('fecha_inicio')
+    fecha_venc_str   = datos.get('fecha_vencimiento')
+
+    if fecha_inicio_str and fecha_venc_str:
+        # Cliente migrado: fechas reales del papel, tal cual.
+        fecha_inicio = date.fromisoformat(fecha_inicio_str)
+        vencimiento  = date.fromisoformat(fecha_venc_str)
+    else:
+        # Cliente nuevo: hoy + 30 días, automático.
+        fecha_inicio = hoy
+        vencimiento  = hoy + timedelta(days=30)
 
     db = conectar_base_datos()
     cursor = db.cursor()
     cursor.execute(
         "INSERT INTO clientes (nombre, telefono, fecha_inicio, fecha_vencimiento, estado, correo, membresia) VALUES (%s,%s,%s,%s,%s,%s,%s)",
-        (nombre, whatsapp, hoy, vencimiento, "Activo", correo, membresia)
+        (nombre, whatsapp, fecha_inicio, vencimiento, "Activo", correo, membresia)
     )
     db.commit()
     nuevo_id = cursor.lastrowid

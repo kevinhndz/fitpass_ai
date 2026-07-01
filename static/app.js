@@ -1,4 +1,3 @@
-
 (function () {
     const canvas = document.getElementById('shader-canvas');
     if (!canvas) return;
@@ -98,21 +97,50 @@ function mostrar(id) {
     if (id === 'reportes') traerReportesHoy();
 }
 
+// ── Toggle de campos de fecha para migración ─────────────────────────────────
+function toggleFechasMigracion() {
+    const checked = document.getElementById('es_migracion').checked;
+    const campos  = document.getElementById('campos-migracion');
+    campos.style.display = checked ? 'block' : 'none';
+
+    // Si se desmarca, limpiamos las fechas para no arrastrar valores viejos
+    if (!checked) {
+        document.getElementById('fecha_inicio').value = '';
+        document.getElementById('fecha_vencimiento').value = '';
+    }
+}
+
 // ── Registro de cliente ──────────────────────────────────────────────────────
 const formulario = document.getElementById('formulario-registro');
 if (formulario) {
     formulario.addEventListener('submit', function (e) {
         e.preventDefault();
 
+        const esMigracion = document.getElementById('es_migracion').checked;
+
+        // Validación: si es migración, las dos fechas son obligatorias
+        if (esMigracion) {
+            const fi = document.getElementById('fecha_inicio').value;
+            const fv = document.getElementById('fecha_vencimiento').value;
+            if (!fi || !fv) {
+                alert('Para un cliente migrado debes ingresar la fecha de pago y la fecha de vencimiento del papel.');
+                return;
+            }
+        }
+
         const btn = formulario.querySelector('button[type="submit"]');
         btn.disabled = true;
         btn.classList.add('cargando');
 
         const datos = {
-            nombre:    document.getElementById('nombre').value,
-            whatsapp:  document.getElementById('whatsapp').value,
-            correo:    document.getElementById('correo').value,
-            membresia: document.getElementById('membresia').value
+            nombre:            document.getElementById('nombre').value,
+            whatsapp:          document.getElementById('whatsapp').value,
+            correo:            document.getElementById('correo').value,
+            membresia:         document.getElementById('membresia').value,
+            // Solo se envían fechas si es migración; si es cliente nuevo,
+            // se mandan vacías y el backend calcula hoy + 30 días automáticamente.
+            fecha_inicio:      esMigracion ? document.getElementById('fecha_inicio').value : '',
+            fecha_vencimiento: esMigracion ? document.getElementById('fecha_vencimiento').value : ''
         };
 
         fetch('/api/registrar', {

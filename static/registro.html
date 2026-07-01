@@ -36,7 +36,15 @@
         </div>
         <div class="nav-icons">
             <span class="material-symbols-outlined nav-icon">notifications</span>
-            <span class="material-symbols-outlined nav-icon">settings</span>
+            <div class="nav-icon-menu">
+                <span class="material-symbols-outlined nav-icon" onclick="toggleMenuUsuario(event)">settings</span>
+                <div id="menu-usuario" class="dropdown-usuario">
+                    <a href="/logout" class="dropdown-item">
+                        <span class="material-symbols-outlined">logout</span>
+                        Salir
+                    </a>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -186,6 +194,23 @@
                     <option value="mensual_estudiante">Mensualidad Estudiante</option>
                 </select>
             </div>
+
+            <label class="campo-checkbox" style="margin: 4px 0 8px;">
+                <input type="checkbox" id="es_migracion" onchange="toggleFechasMigracion()">
+                <span>Cliente migrado (ya pagó antes de hoy — usar fecha del papel)</span>
+            </label>
+
+            <div id="campos-migracion" style="display:none;">
+                <div class="campo">
+                    <label for="fecha_inicio">Fecha de pago (según papel)</label>
+                    <input type="date" id="fecha_inicio">
+                </div>
+                <div class="campo">
+                    <label for="fecha_vencimiento">Fecha de vencimiento</label>
+                    <input type="date" id="fecha_vencimiento">
+                </div>
+            </div>
+
             <button type="submit" class="btn btn-primario btn-ancho">Guardar Cliente</button>
         </form>
     </section>
@@ -274,5 +299,14 @@
 </footer>
 
 <script src="/static/app.js"></script>
+<script>
+function toggleMenuUsuario(e) {
+    e.stopPropagation();
+    document.getElementById('menu-usuario').classList.toggle('abierto');
+}
+document.addEventListener('click', () => {
+    document.getElementById('menu-usuario').classList.remove('abierto');
+});
+</script>
 </body>
 </html>

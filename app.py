@@ -3,14 +3,17 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from werkzeug.security import check_password_hash
 from datetime import date, timedelta
 import os
+from dotenv import load_dotenv
 
 from conexion import conectar_base_datos
 from qr_utils import generar_qr, enviar_qr_por_correo, enviar_correo_recordatorio
 from whatsapp_utils import enviar_recordatorio_whatsapp
 from scheduler import iniciar_scheduler
 
+load_dotenv()
+
 app = Flask(__name__, static_folder='static')
-app.secret_key = 'kevstpg'
+app.secret_key = os.environ.get("FLASK_SECRET_KEY")
 
 
 login_manager = LoginManager()
@@ -123,7 +126,6 @@ def obtener_reportes_hoy():
     return jsonify(datos)
 
 
-# ── Registro: genera QR +envia el correo ───────────────────────────────────────
 
 @app.route('/api/registrar', methods=['POST'])
 @login_required
@@ -171,7 +173,7 @@ def regenerar_qr(id):
     )
     db.commit()
 
-    # 3. Leer los datos actualizados para generar el QR
+
     cursor.execute("SELECT * FROM clientes WHERE id = %s", (id,))
     c = cursor.fetchone()
     cursor.close()
@@ -180,7 +182,6 @@ def regenerar_qr(id):
     if not c:
         return jsonify({"error": "Cliente no encontrado"}), 404
 
-    # 4. Generar y enviar el QR con los datos frescos
     ruta_qr   = generar_qr(c["id"], c["nombre"], c["membresia"], c["fecha_vencimiento"])
     correo_ok = enviar_qr_por_correo(c["correo"], c["nombre"], c["fecha_vencimiento"], ruta_qr)
     wa_ok     = enviar_recordatorio_whatsapp(c["telefono"], c["nombre"], c["fecha_vencimiento"], ruta_qr)
@@ -212,7 +213,7 @@ def api_validar(id):
     if not c:
         return jsonify({"error": "Cliente no encontrado"}), 404
 
-    # Convertir fechas a string para que JSON las serialice bien
+   
     c["fecha_inicio"]      = str(c["fecha_inicio"])
     c["fecha_vencimiento"] = str(c["fecha_vencimiento"])
     return jsonify(c)
@@ -227,5 +228,6 @@ def ver_qr(id):
 
 
 if __name__ == '__main__':
-   
-    app.run(debug=True, host='0.0.0.0', port=5000)
+
+    #
+    app.run(debug=False, host='0.0.0.0', port=5000)

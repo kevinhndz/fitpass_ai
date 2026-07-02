@@ -1,0 +1,19 @@
+name: Deploy FitPass App to Server
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Conectarse al servidor por SSH y probar conexion de la App
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "¡El segundo robot (el de la App fitpass_ai) se ha conectado exitosamente al servidor!"
+            docker compose version

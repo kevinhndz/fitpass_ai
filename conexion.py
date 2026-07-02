@@ -1,15 +1,18 @@
 import os
-import mysql.connector
+import sqlite3
 from dotenv import load_dotenv
 
 load_dotenv()  
 
-def conectar_base_datos():
+DB_PATH = os.environ.get("DB_PATH", "fitpass.db")
 
-    conexion = mysql.connector.connect(
-        host=os.environ.get("DB_HOST"),
-        user=os.environ.get("DB_USER"),
-        password=os.environ.get("DB_PASSWORD"),
-        database=os.environ.get("DB_NAME")
-    )
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
+
+def conectar_base_datos():
+    conexion = sqlite3.connect(DB_PATH)
+    conexion.row_factory = dict_factory
     return conexion

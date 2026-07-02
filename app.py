@@ -28,8 +28,8 @@ class Usuario(UserMixin):
 @login_manager.user_loader
 def load_user(user_id):
     db = conectar_base_datos()
-    cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM usuarios WHERE id = %s", (user_id,))
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM usuarios WHERE id = ?", (user_id,))
     u = cursor.fetchone()
     cursor.close()
     db.close()
@@ -45,8 +45,8 @@ def login():
         pw_in = request.form['password']
         
         db = conectar_base_datos()
-        cursor = db.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM usuarios WHERE username = %s", (user_in,))
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM usuarios WHERE username = ?", (user_in,))
         user_db = cursor.fetchone()
         cursor.close()
         db.close()
@@ -82,9 +82,9 @@ def ir_al_registro():
 def obtener_clientes():
     buscar = request.args.get('buscar')
     db = conectar_base_datos()
-    cursor = db.cursor(dictionary=True)
+    cursor = db.cursor()
     if buscar:
-        sql = "SELECT * FROM clientes WHERE nombre LIKE %s OR telefono LIKE %s OR correo LIKE %s"
+        sql = "SELECT * FROM clientes WHERE nombre LIKE ? OR telefono LIKE ? OR correo LIKE ?"
         cursor.execute(sql, (f"%{buscar}%", f"%{buscar}%", f"%{buscar}%"))
     else:
         cursor.execute("SELECT * FROM clientes")
@@ -101,13 +101,13 @@ def manejar_cliente(id):
     if request.method == 'PUT':
         datos = request.get_json()
         cursor.execute(
-            "UPDATE clientes SET nombre=%s, telefono=%s, correo=%s, membresia=%s WHERE id=%s",
+            "UPDATE clientes SET nombre=?, telefono=?, correo=?, membresia=? WHERE id=?",
             (datos['nombre'], datos['whatsapp'], datos['correo'], datos['membresia'], id)
         )
         db.commit()
         mensaje = "Cliente actualizado correctamente."
     elif request.method == 'DELETE':
-        cursor.execute("DELETE FROM clientes WHERE id=%s", (id,))
+        cursor.execute("DELETE FROM clientes WHERE id=?", (id,))
         db.commit()
         mensaje = "Cliente eliminado del sistema."
     cursor.close()
@@ -118,8 +118,8 @@ def manejar_cliente(id):
 @login_required
 def obtener_reportes_hoy():
     db = conectar_base_datos()
-    cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM clientes WHERE fecha_vencimiento = CURDATE()")
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM clientes WHERE fecha_vencimiento = ?", (date.today().strftime('%Y-%m-%d'),))
     datos = cursor.fetchall()
     cursor.close()
     db.close()
@@ -141,8 +141,8 @@ def registrar_cliente():
     db = conectar_base_datos()
     cursor = db.cursor()
     cursor.execute(
-        "INSERT INTO clientes (nombre, telefono, fecha_inicio, fecha_vencimiento, estado, correo, membresia) VALUES (%s,%s,%s,%s,%s,%s,%s)",
-        (nombre, whatsapp, hoy, vencimiento, "Activo", correo, membresia)
+        "INSERT INTO clientes (nombre, telefono, fecha_inicio, fecha_vencimiento, estado, correo, membresia) VALUES (?,?,?,?,?,?,?)",
+        (nombre, whatsapp, hoy.strftime('%Y-%m-%d'), vencimiento.strftime('%Y-%m-%d'), "Activo", correo, membresia)
     )
     db.commit()
     nuevo_id = cursor.lastrowid
@@ -164,17 +164,17 @@ def regenerar_qr(id):
     nueva_fecha_vencimiento = hoy + timedelta(days=30)
 
     db = conectar_base_datos()
-    cursor = db.cursor(dictionary=True)
+    cursor = db.cursor()
 
     # 2. Actualizar las fechas en la base de datos PRIMERO
     cursor.execute(
-        "UPDATE clientes SET fecha_inicio = %s, fecha_vencimiento = %s, estado = 'Activo' WHERE id = %s",
-        (hoy, nueva_fecha_vencimiento, id)
+        "UPDATE clientes SET fecha_inicio = ?, fecha_vencimiento = ?, estado = 'Activo' WHERE id = ?",
+        (hoy.strftime('%Y-%m-%d'), nueva_fecha_vencimiento.strftime('%Y-%m-%d'), id)
     )
     db.commit()
 
 
-    cursor.execute("SELECT * FROM clientes WHERE id = %s", (id,))
+    cursor.execute("SELECT * FROM clientes WHERE id = ?", (id,))
     c = cursor.fetchone()
     cursor.close()
     db.close()
@@ -204,8 +204,8 @@ def api_validar(id):
     Las fechas vienen como string 'YYYY-MM-DD' para que el JS las procese.
     """
     db = conectar_base_datos()
-    cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT id, nombre, telefono, membresia, fecha_inicio, fecha_vencimiento FROM clientes WHERE id=%s", (id,))
+    cursor = db.cursor()
+    cursor.execute("SELECT id, nombre, telefono, membresia, fecha_inicio, fecha_vencimiento FROM clientes WHERE id=?", (id,))
     c = cursor.fetchone()
     cursor.close()
     db.close()

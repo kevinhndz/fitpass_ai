@@ -12,12 +12,12 @@ def _job_recordatorios(conectar_fn):
     objetivo = date.today() + timedelta(days=2)
 
     db     = conectar_fn()
-    cursor = db.cursor(dictionary=True)
+    cursor = db.cursor()
     
    
     cursor.execute(
-        "SELECT * FROM clientes WHERE fecha_vencimiento = %s AND estado = 'Activo'", 
-        (objetivo,)
+        "SELECT * FROM clientes WHERE fecha_vencimiento = ? AND estado = 'Activo'", 
+        (objetivo.strftime('%Y-%m-%d'),)
     )
     clientes = cursor.fetchall()
     cursor.close()

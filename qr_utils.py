@@ -1,143 +1,87 @@
-import qrcode
-import smtplib
 import os
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
-from datetime import date
+import requests
+from datetime import date, datetime
 from dotenv import load_dotenv
 
 load_dotenv()
 
-GMAIL_REMITENTE    = os.environ.get("GMAIL_REMITENTE")
-GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD")
-QR_FOLDER           = os.path.join("static", "qr")
+# Configuración de la API de WhatsApp (UltraMsg u otra similar)
+WHATSAPP_API_URL = os.environ.get("WHATSAPP_API_URL")
+WHATSAPP_TOKEN   = os.environ.get("WHATSAPP_TOKEN")
+WHATSAPP_MODO    = os.environ.get("WHATSAPP_MODO", "desactivado").lower()
 
-# SERVER_DOMAIN debe ser tu dominio en producción (ej. "tudominio.com")
-# o la IP local solo mientras pruebas dentro del gimnasio.
-# SERVER_PORT vacío si usas HTTPS/Nginx en el puerto 443 (producción).
-SERVER_DOMAIN = os.environ.get("SERVER_DOMAIN", "localhost")
-SERVER_PORT   = os.environ.get("SERVER_PORT", "5000")
+def enviar_qr_por_whatsapp(telefono: str, nombre: str, membresia: str, 
+                           fecha_vencimiento: date, ruta_imagen_qr: str) -> bool:
+    """
+    Envía el mensaje de bienvenida y el código QR de acceso por WhatsApp.
+    Si WHATSAPP_MODO es 'desactivado', simula el envío exitoso sin consumir créditos.
+    """
+    # 1. Asegurar que la fecha sea un objeto date/datetime antes de usar strftime
+    if isinstance(fecha_vencimiento, str):
+        try:
+            # Intenta convertir formato YYYY-MM-DD
+            fecha_vencimiento = date.fromisoformat(fecha_vencimiento)
+        except ValueError:
+            try:
+                # Por si acaso viene con hora YYYY-MM-DD HH:MM:SS
+                fecha_vencimiento = datetime.strptime(fecha_vencimiento.split(" ")[0], "%Y-%m-%d").date()
+            except ValueError:
+                print(f"[WHATSAPP] No se pudo parsear la fecha: {fecha_vencimiento}")
+                # Si falla el parseo, lo dejamos como string para evitar el crash total
+                fecha_str = fecha_vencimiento
+                return False
 
+    # Ahora sí podemos hacer el strftime de forma segura
+    fecha_str = fecha_vencimiento.strftime("%d/%m/%Y")
 
-def _asegurar_carpeta():
-    os.makedirs(QR_FOLDER, exist_ok=True)
-
-
-def _construir_url(cliente_id: int) -> str:
-    if SERVER_PORT:
-        return f"http://{SERVER_DOMAIN}:{SERVER_PORT}/validar/{cliente_id}"
-    return f"https://{SERVER_DOMAIN}/validar/{cliente_id}"
-
-
-def generar_qr(cliente_id: int, nombre: str, membresia: str,
-               fecha_vencimiento: date) -> str:
-    _asegurar_carpeta()
-
-    url = _construir_url(cliente_id)
-
-    qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_H,
-        box_size=10,
-        border=4
-    )
-    qr.add_data(url)
-    qr.make(fit=True)
-
-    
-    img = qr.make_image(fill_color="black", back_color="white")
-
-    ruta = os.path.join(QR_FOLDER, f"qr_cliente_{cliente_id}.png")
-    img.save(ruta)
-    return ruta
-
-def enviar_qr_por_correo(destinatario: str, nombre: str,
-                          fecha_vencimiento: date, ruta_qr: str) -> bool:
-    try:
-        msg = MIMEMultipart("related")
-        msg["Subject"] = "🏋️ Tu acceso Sport Fitness — Código QR"
-        msg["From"]    = GMAIL_REMITENTE
-        msg["To"]      = destinatario
-
-        html = f"""
-        <html><body style="background:#0d0d10;color:#fff;font-family:sans-serif;padding:32px;">
-          <div style="max-width:480px;margin:auto;text-align:center;">
-            <h1 style="color:#00d68f;">🏋️‍♂️ Sport Fitness</h1>
-            <p style="font-size:16px;">Hola <strong>{nombre}</strong>, aquí está tu código de acceso.</p>
-            <div style="background:#1a1a1e;border:1px solid #2c2c33;border-radius:16px;padding:24px;margin:24px 0;">
-              <img src="cid:qr_imagen" style="width:220px;height:220px;" alt="Código QR de acceso">
-              <p style="color:#a8a8b3;font-size:14px;margin-top:16px;">
-                Válido hasta: <strong style="color:#00d68f;">{fecha_vencimiento.strftime('%d/%m/%Y')}</strong>
-              </p>
-            </div>
-            <p style="color:#a8a8b3;font-size:13px;">
-              Presenta este código al ingresar al gimnasio.<br>
-              Los pagos se realizan presencialmente (efectivo o tarjeta).
-            </p>
-          </div>
-        </body></html>
-        """
-        msg.attach(MIMEText(html, "html"))
-
-        with open(ruta_qr, "rb") as f:
-            img_mime = MIMEImage(f.read())
-        img_mime.add_header("Content-ID", "<qr_imagen>")
-        img_mime.add_header("Content-Disposition", "inline", filename="acceso_qr.png")
-        msg.attach(img_mime)
-
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as s:
-            s.login(GMAIL_REMITENTE, GMAIL_APP_PASSWORD)
-            s.sendmail(GMAIL_REMITENTE, destinatario, msg.as_string())
+    # 2. Verificar el modo después de procesar los datos de entrada
+    if WHATSAPP_MODO == "desactivado":
+        print("[WHATSAPP] Modo no reconocido o desactivado. Simulación de envío exitosa.")
         return True
 
-    except Exception as e:
-        print(f"[ERROR correo QR] {e}")
+    if not WHATSAPP_API_URL or not WHATSAPP_TOKEN:
+        print("[WHATSAPP] Error: WHATSAPP_API_URL o WHATSAPP_TOKEN no configurados en .env")
         return False
 
+    # Limpiar el teléfono (quitar espacios o caracteres raros)
+    telefono_limpio = "".join(filter(str.isdigit, telefono))
+    
+    # Asegurar que tenga el código de país (ej. Honduras 504 si no lo tiene)
+    if not telefono_limpio.startswith("504") and len(telefono_limpio) == 8:
+        telefono_limpio = f"504{telefono_limpio}"
 
-def enviar_correo_recordatorio(destinatario: str, nombre: str,
-                                fecha_vencimiento: date, dias_restantes: int) -> bool:
+    # Construir el mensaje de texto
+    mensaje = (
+        f"🏋️‍♂️ *¡Bienvenido a Sport Fitness, {nombre}!* 🏋️‍♂️\n\n"
+        f"Tu inscripción a la membresía *{membresia}* ha sido exitosa.\n"
+        f"📅 *Vence el:* {fecha_str}\n\n"
+        f"Te adjuntamos tu *Código QR de acceso*. Preséntalo en la entrada cada vez que ingreses al gimnasio.\n\n"
+        f"¡A darle con todo al entrenamiento! 💪🔥"
+    )
+
     try:
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = "⚠️ Tu membresía Sport Fitness vence pronto"
-        msg["From"]    = GMAIL_REMITENTE
-        msg["To"]      = destinatario
-
-        if dias_restantes > 0:
-            estado_texto = f"vence en <strong style='color:#f5a623;'>{dias_restantes} día(s)</strong>"
-            instruccion  = "Acércate a recepción antes de esa fecha para renovarla."
-            color_borde  = "#f5a623"
+        # Enviar la imagen junto con el texto (Depende del formato exacto de tu API, ej: Ultramsg)
+        payload = {
+            "token": WHATSAPP_TOKEN,
+            "to": telefono_limpio,
+            "image": f"{requests.utils.requote_uri(ruta_imagen_qr)}", # O la URL pública si corresponde
+            "caption": mensaje
+        }
+        
+        headers = {"content-type": "application/x-www-form-urlencoded"}
+        
+        # Ajusta el endpoint según la API que utilices (ej: /messages/image)
+        url_endpoint = f"{WHATSAPP_API_URL.rstrip('/')}/messages/image"
+        
+        response = requests.post(url_endpoint, data=payload, headers=headers, timeout=10)
+        
+        if response.status_code in [200, 201]:
+            print(f"[WHATSAPP] Mensaje enviado correctamente a {telefono_limpio}")
+            return True
         else:
-            retraso      = abs(dias_restantes)
-            estado_texto = f"venció hace <strong style='color:#ff5c5c;'>{retraso} día(s)</strong>"
-            instruccion  = "Por favor acércate a recepción a regularizar tu situación."
-            color_borde  = "#ff5c5c"
-
-        html = f"""
-        <html><body style="background:#0d0d10;color:#fff;font-family:sans-serif;padding:32px;">
-          <div style="max-width:480px;margin:auto;text-align:center;">
-            <h1 style="color:#00d68f;">🏋️‍♂️ Sport Fitness</h1>
-            <p style="font-size:16px;">Hola <strong>{nombre}</strong>,</p>
-            <div style="background:#1a1a1e;border:2px solid {color_borde};border-radius:16px;padding:28px;margin:24px 0;">
-              <p style="font-size:18px;margin:0;">Tu membresía {estado_texto}.</p>
-              <p style="color:#a8a8b3;font-size:14px;margin-top:12px;">
-                Fecha límite: <strong style="color:{color_borde};">{fecha_vencimiento.strftime('%d/%m/%Y')}</strong>
-              </p>
-              <p style="color:#fff;font-size:15px;margin-top:16px;">{instruccion}</p>
-              <p style="color:#a8a8b3;font-size:13px;">Pagos: efectivo o tarjeta en recepción.</p>
-            </div>
-            <p style="color:#3a3a42;font-size:11px;">© 2026 Sport Fitness — Uso interno</p>
-          </div>
-        </body></html>
-        """
-        msg.attach(MIMEText(html, "html"))
-
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as s:
-            s.login(GMAIL_REMITENTE, GMAIL_APP_PASSWORD)
-            s.sendmail(GMAIL_REMITENTE, destinatario, msg.as_string())
-        return True
+            print(f"[WHATSAPP] Error en la API de WhatsApp. Status: {response.status_code}, Response: {response.text}")
+            return False
 
     except Exception as e:
-        print(f"[ERROR correo recordatorio] {e}")
+        print(f"[WHATSAPP] Excepción al intentar enviar mensaje: {e}")
         return False

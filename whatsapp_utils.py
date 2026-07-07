@@ -23,7 +23,7 @@ import os
 # ─────────────────────────────────────────────────────────────────────────────
 # CONFIGURACIÓN — elige el modo y rellena las credenciales correspondientes
 # ─────────────────────────────────────────────────────────────────────────────
-MODO = "pywhatkit"   # Opciones: "twilio" | "pywhatkit"
+MODO = "desactivado"
 
 # Credenciales Twilio (solo necesarias si MODO == "twilio")
 TWILIO_SID    = "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"

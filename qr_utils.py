@@ -42,7 +42,7 @@ def generar_qr(cliente_id: int, nombre: str, membresia: str,
         box_size=10,
         border=4
     )
-    qr.add_data(url)
+    qr.add_data(fecha_vencimiento   )
     qr.make(fit=True)
 
     

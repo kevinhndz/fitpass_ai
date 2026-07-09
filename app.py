@@ -183,6 +183,7 @@ def regenerar_qr(id):
         return jsonify({"error": "Cliente no encontrado"}), 404
 
     ruta_qr   = generar_qr(c["id"], c["nombre"], c["membresia"], c["fecha_vencimiento"])
+    print(ruta_qr)
     correo_ok = enviar_qr_por_correo(c["correo"], c["nombre"], c["fecha_vencimiento"], ruta_qr)
     wa_ok     = enviar_recordatorio_whatsapp(c["telefono"], c["nombre"], c["fecha_vencimiento"], ruta_qr)
 

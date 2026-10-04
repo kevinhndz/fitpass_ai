@@ -9,7 +9,7 @@ class ClienteService:
         self.repository = repository or ClienteRepository()
 
     def listar(self, db: Session, buscar: str | None = None):
-        return self.repository.list(db, buscar)
+        return self.repository.list_all(db, buscar)
 
     def registrar(self, db: Session, data: ClienteCreate):
         return self.repository.create(db, data)
@@ -40,3 +40,6 @@ class ClienteService:
 
     def vencen_hoy(self, db: Session):
         return self.repository.due_today(db)
+
+    def vencen_el(self, db: Session, target: date):
+        return self.repository.due_on(db, target)

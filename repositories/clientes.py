@@ -6,7 +6,7 @@ from tablas import Cliente
 
 
 class ClienteRepository:
-    def list(self, db: Session, buscar: str | None = None) -> list[Cliente]:
+    def list_all(self, db: Session, buscar: str | None = None) -> list[Cliente]:
         query = select(Cliente).order_by(Cliente.id)
         if buscar:
             term = f"%{buscar}%"
@@ -36,3 +36,6 @@ class ClienteRepository:
 
     def due_today(self, db: Session) -> list[Cliente]:
         return list(db.scalars(select(Cliente).where(Cliente.fecha_vencimiento == date.today())).all())
+
+    def due_on(self, db: Session, target: date) -> list[Cliente]:
+        return list(db.scalars(select(Cliente).where(Cliente.fecha_vencimiento == target, Cliente.estado == "Activo")).all())
